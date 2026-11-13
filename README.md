@@ -18,12 +18,13 @@ Pomodoro tekniğiyle çalışan görev planlayıcı ve odak sayacı. Görevleri 
 | `index.html` | Uygulamanın tamamı (HTML, CSS, JavaScript) |
 | `manifest.webmanifest` | Ana ekrana eklenince uygulama adı, simgesi ve görünümü |
 | `sw.js` | Uygulamanın bir kez açıldıktan sonra internetsiz de çalışmasını sağlar |
-| `icons/` | Ana ekran ve tarayıcı simgeleri |
+| `apple-touch-icon.png` | iPhone ana ekran simgesi |
+| `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Tarayıcı ve Android simgeleri |
 
 ## GitHub Pages ile yayınlama
 
 1. GitHub'da yeni bir depo oluştur, örneğin `odak-planlayici`.
-2. Bu klasördeki tüm dosyaları, `icons` klasörüyle birlikte, deponun ana dizinine yükle.
+2. Tüm dosyaları deponun ana dizinine yükle. Klasör gerekmez; hepsi `index.html` ile yan yana durur.
 3. Depoda **Settings → Pages** bölümüne gir. **Source** olarak "Deploy from a branch", dal olarak `main` ve klasör olarak `/ (root)` seç, sonra kaydet.
 4. Bir iki dakika içinde uygulama `https://KULLANICI-ADIN.github.io/odak-planlayici/` adresinde açılır.
 
@@ -32,6 +33,8 @@ Pomodoro tekniğiyle çalışan görev planlayıcı ve odak sayacı. Görevleri 
 1. Adresi **Safari**'de aç.
 2. Paylaş düğmesine dokun ve **Ana Ekrana Ekle**'yi seç.
 3. Uygulama, ana ekranda "Odak" adıyla kendi simgesiyle görünür ve tam ekran açılır.
+
+iPhone simgeyi yalnızca ana ekrana eklerken bir kez alır. Simge dosyalarını sonradan yüklediysen ana ekrandaki eski kısayolu sil ve yeniden ekle.
 
 ## Bilinmesi gerekenler
 

@@ -1,14 +1,14 @@
 // Odak Planlayıcı: lets the app open without internet once it has been loaded.
 // Own files: network first (so updates show up), cached copy when offline.
 // Google Fonts: cached copy first, refreshed in the background.
-const CACHE = "odak-v1";
+const CACHE = "odak-v5";
 const CORE = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/apple-touch-icon.png"
+  "./icon-192.png",
+  "./icon-512.png",
+  "./apple-touch-icon.png"
 ];
 
 self.addEventListener("install", event => {

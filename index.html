@@ -12,8 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Odak">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&family=Red+Hat+Mono:wght@500;700&family=Red+Hat+Text:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -366,17 +366,9 @@ const LS = "odak.state.v2", LS1 = "odak.state.v1", LR = "odak.run.v2";
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
+// First launch starts empty.
 function seed() {
-  const t = today();
-  const mk = (title, g, dur, created, order, x = {}) => ({id: uid(), title, g, dur, created, order, doneAt: null, spent: 0, sample: true, ...x});
-  const a = mk("Haftalık raporu bitir", "r", 50, addDays(t, -2), 0);
-  const b = mk("Faturaları öde", "r", 15, addDays(t, -1), 1);
-  const c = mk("İngilizce kelime tekrarı", "o", 25, addDays(t, -3), 0);
-  const d = mk("E-postaları yanıtla", "o", 30, t, 1);
-  const e = mk("Kitap oku", "g", 30, addDays(t, -5), 0);
-  const f = mk("Market listesi hazırla", "g", 10, t, 1);
-  const h = mk("Banka randevusunu ayarla", "r", 15, addDays(t, -6), 2, {doneAt: addDays(t, -4) + "T11:20", spent: 900000});
-  return {v: 2, updatedAt: 0, settings: {...DEF}, tasks: [a, b, c, d, e, f, h], plans: {[t]: [a.id, b.id, c.id, d.id]}};
+  return {v: 2, updatedAt: 0, settings: {...DEF}, tasks: [], plans: {}};
 }
 // Accepts the current format, or converts the first version (categories + day/time) to it.
 function migrate(s) {
@@ -405,10 +397,18 @@ function migrate(s) {
   return {v: 2, updatedAt: Date.now(), settings: {...DEF}, tasks, plans, migrated: true};
 }
 let state = migrate(lsGet(LS)) || migrate(lsGet(LS1)) || seed();
-delete state.migrated; lsSet(LS, state); lsSet(LS1, null); lsSet("odak.timer.v1", null);
+delete state.migrated;
+// Earlier versions shipped example tasks; drop any that were never edited.
+const samples = new Set(state.tasks.filter(t => t.sample).map(t => t.id));
+if (samples.size) {
+  state.tasks = state.tasks.filter(t => !samples.has(t.id));
+  for (const k in state.plans) { state.plans[k] = state.plans[k].filter(id => !samples.has(id)); if (!state.plans[k].length) delete state.plans[k]; }
+}
+lsSet(LS, state); lsSet(LS1, null); lsSet("odak.timer.v1", null);
 
 let run = lsGet(LR);
-if (run && (!run.phase || !isYmd(run.date) || !run.taskId)) run = null;
+if (run && (!run.phase || !isYmd(run.date) || !run.taskId || samples.has(run.taskId))) run = null;
+if (!run) lsSet(LR, null);
 let focusOpen = !!run, summary = null;
 const ui = {view: "bugun", planDate: today(), week: monday(today()), editId: null, delArm: false, endArm: false, fill: 120,
   q: "", fg: {r: true, o: true, g: true}, st: "all"};
@@ -758,6 +758,10 @@ function viewToday() {
       <h2>${b.pomos} pomodoro · ${fmtMs(b.work)}</h2>
       <p>${b.breaks} mola, toplam ${fmtMs(b.brk)}. Şimdi başlarsan tahmini bitiş ${hm(new Date(Date.now() + b.all))}.</p>
       <button class="btn" data-act="run">Programı başlat</button></div>`;
+  } else if (!state.tasks.length) {
+    act = `<div class="card empty-card"><h2>Henüz görev yok</h2>
+      <p class="muted">Önce yapacağın işleri önem rengiyle ekle. Sonra Planla ile günün programını yapıp Pomodoro sayacını başlatırsın.</p>
+      <button class="btn pri" data-act="new">İlk görevini ekle</button></div>`;
   } else {
     const red = openOf("r").length;
     act = `<div class="card empty-card"><h2>${list.length ? "Bugünün planı tamamlandı" : "Bugün için plan yok"}</h2>
